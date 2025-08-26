@@ -10,6 +10,29 @@
 	let completedOperations: Array<{ multiplier: number; result: number }> = [];
 	let isCorrect: boolean | null = null;
 	let inputRef: HTMLInputElement | null = null;
+	let wrongAttempts = 0;
+	const MAX_ATTEMPTS = 7;
+
+	function getHangmanPart(part: number): string {
+		switch (part) {
+			case 0: // Base
+				return 'M10 140 L140 140';
+			case 1: // Poste vertical
+				return 'M30 140 L30 10';
+			case 2: // Poste horizontal
+				return 'M30 10 L100 10';
+			case 3: // Cuerda
+				return 'M100 10 L100 30';
+			case 4: // Cabeza
+				return 'M85 45 A15 15 0 1 0 115 45 A15 15 0 1 0 85 45';
+			case 5: // Cuerpo y brazos
+				return 'M100 60 L100 100 M100 75 L70 85 M100 75 L130 85';
+			case 6: // Piernas
+				return 'M100 100 L70 130 M100 100 L130 130';
+			default:
+				return '';
+		}
+	}
 
 	function ref(node: HTMLInputElement) {
 		inputRef = node;
@@ -26,7 +49,7 @@
 		completedOperations = [];
 		userInput = '';
 		isCorrect = null;
-		// Darle foco al input después de un breve momento para asegurar que está renderizado
+		wrongAttempts = 0;
 		setTimeout(() => {
 			inputRef?.focus();
 		}, 0);
@@ -47,7 +70,6 @@
 			];
 
 			if (currentMultiplier === 10) {
-				// Tabla completada - lanzar confeti
 				confetti({
 					particleCount: 100,
 					spread: 70,
@@ -57,6 +79,13 @@
 				currentMultiplier++;
 			}
 			userInput = '';
+		} else {
+			wrongAttempts++;
+			if (wrongAttempts >= MAX_ATTEMPTS) {
+				// Game over - reiniciar la tabla actual
+				currentMultiplier = 1;
+				completedOperations = [];
+			}
 		}
 
 		inputRef?.focus();
@@ -88,7 +117,24 @@
 			</Button>
 
 			<Card class="p-6">
-				<h2 class="mb-4 text-2xl font-bold">Taula del {selectedNumber}</h2>
+				<div class="flex justify-between">
+					<h2 class="mb-4 text-2xl font-bold">Taula del {selectedNumber}</h2>
+
+					{#if wrongAttempts > 0}
+						<div class="h-[150px] w-[150px]">
+							<svg width="150" height="150" viewBox="0 0 150 150">
+								{#each Array(wrongAttempts) as _, i}
+									<path
+										d={getHangmanPart(i)}
+										class="stroke-foreground"
+										fill="none"
+										stroke-width="2"
+									/>
+								{/each}
+							</svg>
+						</div>
+					{/if}
+				</div>
 
 				{#if completedOperations.length > 0}
 					<div class="mx-auto mb-6 space-y-2">
@@ -100,9 +146,18 @@
 					</div>
 				{/if}
 
-				{#if completedOperations.length === 10}
+				{#if wrongAttempts >= MAX_ATTEMPTS}
+					<div class="mt-6 text-center text-2xl font-bold text-red-600">
+						<div>Game Over!</div>
+						<Button class="mt-4" onclick={() => selectedNumber && selectNumber(selectedNumber)}
+							>Intentar un altre cop</Button
+						>
+					</div>
+				{:else if completedOperations.length === 10}
 					<div class="mt-6 text-center text-2xl font-bold text-green-600">
-						Felicitats! Has completat la taula del {selectedNumber}!
+						<p>Felicitats!</p>
+
+						<p>Has completat la taula del {selectedNumber}!</p>
 					</div>
 				{:else}
 					<div class="mt-4 space-y-4">
@@ -125,7 +180,13 @@
 							<Button onclick={checkAnswer} class="cursor-pointer">Comprovar</Button>
 						</div>
 						{#if isCorrect === false}
-							<p class="text-red-500">Torna-ho a intentar!</p>
+							<p class="text-center text-red-500">
+								{#if MAX_ATTEMPTS - wrongAttempts > 1}
+									Torna-ho a intentar! Et queden {MAX_ATTEMPTS - wrongAttempts} intents
+								{:else}
+									Torna-ho a intentar! Últim intent
+								{/if}
+							</p>
 						{/if}
 					</div>
 				{/if}
