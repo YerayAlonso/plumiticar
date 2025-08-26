@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Card } from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
 	import confetti from 'canvas-confetti';
 
 	// Añadimos la animación de bounce a Tailwind
@@ -26,27 +25,15 @@
 	let isCorrect: boolean | null = null;
 	let inputRef: HTMLInputElement | null = null;
 	let wrongAttempts = 0;
-	const MAX_ATTEMPTS = 7;
+	const MAX_ATTEMPTS = 5;
 
-	function getHangmanPart(part: number): string {
-		switch (part) {
-			case 0: // Base
-				return 'M10 140 L140 140';
-			case 1: // Poste vertical
-				return 'M30 140 L30 10';
-			case 2: // Poste horizontal
-				return 'M30 10 L100 10';
-			case 3: // Cuerda
-				return 'M100 10 L100 30';
-			case 4: // Cabeza
-				return 'M85 45 A15 15 0 1 0 115 45 A15 15 0 1 0 85 45';
-			case 5: // Cuerpo y brazos
-				return 'M100 60 L100 100 M100 75 L70 85 M100 75 L130 85';
-			case 6: // Piernas
-				return 'M100 100 L70 130 M100 100 L130 130';
-			default:
-				return '';
-		}
+	function Heart({ filled = true }: { filled: boolean }) {
+		const color = filled ? 'text-red-500' : 'text-gray-300';
+		return `
+			<svg class="h-8 w-8 ${color}" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+				<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+			</svg>
+		`;
 	}
 
 	function ref(node: HTMLInputElement) {
@@ -105,6 +92,28 @@
 
 		inputRef?.focus();
 	}
+
+	function getColorIndex(i: number) {
+		return i === 0
+			? 'from-pink-400 to-pink-600'
+			: i === 1
+				? 'from-purple-400 to-purple-600'
+				: i === 2
+					? 'from-blue-400 to-blue-600'
+					: i === 3
+						? 'from-green-400 to-green-600'
+						: i === 4
+							? 'from-yellow-400 to-yellow-600'
+							: i === 5
+								? 'from-orange-400 to-orange-600'
+								: i === 6
+									? 'from-red-400 to-red-600'
+									: i === 7
+										? 'from-teal-400 to-teal-600'
+										: i === 8
+											? 'from-cyan-400 to-cyan-600'
+											: 'from-indigo-400 to-indigo-600';
+	}
 </script>
 
 <div class="container mx-auto p-4">
@@ -116,26 +125,9 @@
 		<div class="grid grid-cols-2 gap-6 md:grid-cols-5">
 			{#each Array(10) as _, i}
 				<button
-					class="group relative flex h-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br shadow-lg transition-transform hover:scale-105 active:scale-95 {i ===
-					0
-						? 'from-pink-400 to-pink-600'
-						: i === 1
-							? 'from-purple-400 to-purple-600'
-							: i === 2
-								? 'from-blue-400 to-blue-600'
-								: i === 3
-									? 'from-green-400 to-green-600'
-									: i === 4
-										? 'from-yellow-400 to-yellow-600'
-										: i === 5
-											? 'from-orange-400 to-orange-600'
-											: i === 6
-												? 'from-red-400 to-red-600'
-												: i === 7
-													? 'from-teal-400 to-teal-600'
-													: i === 8
-														? 'from-cyan-400 to-cyan-600'
-														: 'from-indigo-400 to-indigo-600'}"
+					class="group relative flex h-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br shadow-lg transition-transform hover:scale-105 active:scale-95 {getColorIndex(
+						i
+					)}"
 					onclick={() => selectNumber(i + 1)}
 				>
 					<span
@@ -155,46 +147,20 @@
 				<div class="relative flex justify-between">
 					<h2 class="mb-4 text-2xl font-bold">Taula del {selectedNumber}</h2>
 
-					{#if wrongAttempts > 0}
-						<div class="absolute top-1 right-1 h-[150px] w-[150px]">
-							<svg width="150" height="150" viewBox="0 0 150 150">
-								{#each Array(wrongAttempts) as _, i}
-									<path
-										d={getHangmanPart(i)}
-										class="stroke-foreground"
-										fill="none"
-										stroke-width="2"
-									/>
-								{/each}
-							</svg>
-						</div>
-					{/if}
+					<div class="flex items-center gap-1">
+						{#each Array(MAX_ATTEMPTS) as _, i}
+							{@html Heart({ filled: i >= wrongAttempts })}
+						{/each}
+					</div>
 				</div>
 
 				{#if completedOperations.length > 0}
 					<div class="mx-auto mb-6 flex flex-col gap-2">
 						{#each completedOperations as op}
 							<div
-								class="flex animate-[bounce_0.5s_ease-in-out] items-center justify-center rounded-xl bg-gradient-to-br p-3 text-center text-white shadow-lg transition-transform hover:scale-105 {op.multiplier ===
-								1
-									? 'from-pink-400 to-pink-600'
-									: op.multiplier === 2
-										? 'from-purple-400 to-purple-600'
-										: op.multiplier === 3
-											? 'from-blue-400 to-blue-600'
-											: op.multiplier === 4
-												? 'from-green-400 to-green-600'
-												: op.multiplier === 5
-													? 'from-yellow-400 to-yellow-600'
-													: op.multiplier === 6
-														? 'from-orange-400 to-orange-600'
-														: op.multiplier === 7
-															? 'from-red-400 to-red-600'
-															: op.multiplier === 8
-																? 'from-teal-400 to-teal-600'
-																: op.multiplier === 9
-																	? 'from-cyan-400 to-cyan-600'
-																	: 'from-indigo-400 to-indigo-600'}"
+								class="flex animate-[bounce_0.5s_ease-in-out] items-center justify-center rounded-xl bg-gradient-to-br px-3 py-2 text-center text-white shadow-lg transition-transform hover:scale-105 {getColorIndex(
+									op.multiplier
+								)}"
 							>
 								<div class="text-lg font-medium">
 									{selectedNumber} × {op.multiplier} =
@@ -250,7 +216,7 @@
 							<div class="text-center">
 								<p class="text-xl font-medium text-red-500">
 									{#if MAX_ATTEMPTS - wrongAttempts > 1}
-										¡Ups! Et queden {MAX_ATTEMPTS - wrongAttempts} intents 🤔
+										Ups! Et queden {MAX_ATTEMPTS - wrongAttempts} intents 🤔
 									{:else}
 										Compte! Últim intento! 😰
 									{/if}
