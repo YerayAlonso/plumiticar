@@ -91,7 +91,7 @@
 				<h2 class="mb-4 text-2xl font-bold">Taula del {selectedNumber}</h2>
 
 				{#if completedOperations.length > 0}
-					<div class="mb-6 space-y-2">
+					<div class="mx-auto mb-6 space-y-2">
 						{#each completedOperations as op}
 							<div class="text-xl">
 								{selectedNumber} × {op.multiplier} = {op.result}
@@ -105,17 +105,18 @@
 						Felicitats! Has completat la taula del {selectedNumber}!
 					</div>
 				{:else}
-					<div class="mt-6 space-y-4">
-						<div class="text-2xl">
+					<div class="mt-4 space-y-4">
+						<div class="text-center text-2xl">
 							{selectedNumber} × {currentMultiplier} = ?
 						</div>
-						<div class="flex gap-4">
+						<div class="flex justify-center gap-4">
 							<input
 								type="number"
+								name="answer"
 								bind:value={userInput}
 								use:ref
 								placeholder="Escriu la resposta"
-								class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 {isCorrect ===
+								class="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 {isCorrect ===
 								false
 									? 'border-red-500'
 									: ''}"
