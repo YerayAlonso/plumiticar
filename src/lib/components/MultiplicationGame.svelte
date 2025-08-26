@@ -9,6 +9,16 @@
 	let userInput = '';
 	let completedOperations: Array<{ multiplier: number; result: number }> = [];
 	let isCorrect: boolean | null = null;
+	let inputRef: HTMLInputElement | null = null;
+
+	function ref(node: HTMLInputElement) {
+		inputRef = node;
+		return {
+			destroy() {
+				inputRef = null;
+			}
+		};
+	}
 
 	function selectNumber(num: number) {
 		selectedNumber = num;
@@ -16,6 +26,10 @@
 		completedOperations = [];
 		userInput = '';
 		isCorrect = null;
+		// Darle foco al input después de un breve momento para asegurar que está renderizado
+		setTimeout(() => {
+			inputRef?.focus();
+		}, 0);
 	}
 
 	function checkAnswer() {
@@ -44,6 +58,8 @@
 			}
 			userInput = '';
 		}
+
+		inputRef?.focus();
 	}
 </script>
 
@@ -94,11 +110,16 @@
 							{selectedNumber} × {currentMultiplier} = ?
 						</div>
 						<div class="flex gap-4">
-							<Input
+							<input
 								type="number"
 								bind:value={userInput}
-								placeholder="Escribe tu respuesta"
-								class={isCorrect === false ? 'border-red-500' : ''}
+								use:ref
+								placeholder="Escriu la resposta"
+								class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 {isCorrect ===
+								false
+									? 'border-red-500'
+									: ''}"
+								onkeydown={(e) => e.key === 'Enter' && checkAnswer()}
 							/>
 							<Button onclick={checkAnswer} class="cursor-pointer">Comprovar</Button>
 						</div>
