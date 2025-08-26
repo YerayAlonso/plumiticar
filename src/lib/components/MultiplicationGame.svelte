@@ -98,16 +98,33 @@
 			Practica les Taules de <s>Plumiticar</s> Multiplicar!
 		</h1>
 		<h2 class="my-10 text-center text-xl">Escull un nombre per practicar la seva taula:</h2>
-		<div class="grid grid-cols-2 gap-4 md:grid-cols-5">
+		<div class="grid grid-cols-2 gap-6 md:grid-cols-5">
 			{#each Array(10) as _, i}
-				<Button
-					variant="outline"
-					size="lg"
-					class="h-24 cursor-pointer text-3xl"
+				<button
+					class="group relative flex h-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br shadow-lg transition-transform hover:scale-105 active:scale-95 {i === 0
+						? 'from-pink-400 to-pink-600'
+						: i === 1
+						? 'from-purple-400 to-purple-600'
+						: i === 2
+						? 'from-blue-400 to-blue-600'
+						: i === 3
+						? 'from-green-400 to-green-600'
+						: i === 4
+						? 'from-yellow-400 to-yellow-600'
+						: i === 5
+						? 'from-orange-400 to-orange-600'
+						: i === 6
+						? 'from-red-400 to-red-600'
+						: i === 7
+						? 'from-teal-400 to-teal-600'
+						: i === 8
+						? 'from-cyan-400 to-cyan-600'
+						: 'from-indigo-400 to-indigo-600'}"
 					onclick={() => selectNumber(i + 1)}
 				>
-					{i + 1}
-				</Button>
+					<span class="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100"></span>
+					<span class="text-5xl font-bold text-white">{i + 1}</span>
+				</button>
 			{/each}
 		</div>
 	{:else}
