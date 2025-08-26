@@ -118,4 +118,13 @@
   body {
     @apply bg-background text-foreground;
   }
+  input[type="number"] {
+    /* Hide spin-buttons in Firefox */
+    appearance: textfield;
+    /* Hide spin-buttons in Chromium-based browsers */
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      appearance: none;
+    }
+  }
 }

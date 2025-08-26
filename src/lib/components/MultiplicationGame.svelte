@@ -4,6 +4,21 @@
 	import { Input } from '$lib/components/ui/input';
 	import confetti from 'canvas-confetti';
 
+	// Añadimos la animación de bounce a Tailwind
+	const bounce = `
+		@keyframes bounce {
+			0%, 100% { transform: translateY(0); }
+			50% { transform: translateY(-10px); }
+		}
+	`;
+
+	// Añadimos el estilo al documento
+	if (typeof document !== 'undefined') {
+		const style = document.createElement('style');
+		style.textContent = bounce;
+		document.head.appendChild(style);
+	}
+
 	let selectedNumber: number | null = null;
 	let currentMultiplier = 1;
 	let userInput = '';
@@ -101,28 +116,31 @@
 		<div class="grid grid-cols-2 gap-6 md:grid-cols-5">
 			{#each Array(10) as _, i}
 				<button
-					class="group relative flex h-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br shadow-lg transition-transform hover:scale-105 active:scale-95 {i === 0
+					class="group relative flex h-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br shadow-lg transition-transform hover:scale-105 active:scale-95 {i ===
+					0
 						? 'from-pink-400 to-pink-600'
 						: i === 1
-						? 'from-purple-400 to-purple-600'
-						: i === 2
-						? 'from-blue-400 to-blue-600'
-						: i === 3
-						? 'from-green-400 to-green-600'
-						: i === 4
-						? 'from-yellow-400 to-yellow-600'
-						: i === 5
-						? 'from-orange-400 to-orange-600'
-						: i === 6
-						? 'from-red-400 to-red-600'
-						: i === 7
-						? 'from-teal-400 to-teal-600'
-						: i === 8
-						? 'from-cyan-400 to-cyan-600'
-						: 'from-indigo-400 to-indigo-600'}"
+							? 'from-purple-400 to-purple-600'
+							: i === 2
+								? 'from-blue-400 to-blue-600'
+								: i === 3
+									? 'from-green-400 to-green-600'
+									: i === 4
+										? 'from-yellow-400 to-yellow-600'
+										: i === 5
+											? 'from-orange-400 to-orange-600'
+											: i === 6
+												? 'from-red-400 to-red-600'
+												: i === 7
+													? 'from-teal-400 to-teal-600'
+													: i === 8
+														? 'from-cyan-400 to-cyan-600'
+														: 'from-indigo-400 to-indigo-600'}"
 					onclick={() => selectNumber(i + 1)}
 				>
-					<span class="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100"></span>
+					<span
+						class="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100"
+					></span>
 					<span class="text-5xl font-bold text-white">{i + 1}</span>
 				</button>
 			{/each}
@@ -134,11 +152,11 @@
 			</Button>
 
 			<Card class="p-6">
-				<div class="flex justify-between">
+				<div class="relative flex justify-between">
 					<h2 class="mb-4 text-2xl font-bold">Taula del {selectedNumber}</h2>
 
 					{#if wrongAttempts > 0}
-						<div class="h-[150px] w-[150px]">
+						<div class="absolute top-1 right-1 h-[150px] w-[150px]">
 							<svg width="150" height="150" viewBox="0 0 150 150">
 								{#each Array(wrongAttempts) as _, i}
 									<path
@@ -154,10 +172,36 @@
 				</div>
 
 				{#if completedOperations.length > 0}
-					<div class="mx-auto mb-6 space-y-2">
+					<div class="mx-auto mb-6 flex flex-col gap-2">
 						{#each completedOperations as op}
-							<div class="text-xl">
-								{selectedNumber} × {op.multiplier} = {op.result}
+							<div
+								class="flex animate-[bounce_0.5s_ease-in-out] items-center justify-center rounded-xl bg-gradient-to-br p-3 text-center text-white shadow-lg transition-transform hover:scale-105 {op.multiplier ===
+								1
+									? 'from-pink-400 to-pink-600'
+									: op.multiplier === 2
+										? 'from-purple-400 to-purple-600'
+										: op.multiplier === 3
+											? 'from-blue-400 to-blue-600'
+											: op.multiplier === 4
+												? 'from-green-400 to-green-600'
+												: op.multiplier === 5
+													? 'from-yellow-400 to-yellow-600'
+													: op.multiplier === 6
+														? 'from-orange-400 to-orange-600'
+														: op.multiplier === 7
+															? 'from-red-400 to-red-600'
+															: op.multiplier === 8
+																? 'from-teal-400 to-teal-600'
+																: op.multiplier === 9
+																	? 'from-cyan-400 to-cyan-600'
+																	: 'from-indigo-400 to-indigo-600'}"
+							>
+								<div class="text-lg font-medium">
+									{selectedNumber} × {op.multiplier} =
+									<span class="font-bold">
+										{op.result}
+									</span>
+								</div>
 							</div>
 						{/each}
 					</div>
@@ -177,33 +221,41 @@
 						<p>Has completat la taula del {selectedNumber}!</p>
 					</div>
 				{:else}
-					<div class="mt-4 space-y-4">
-						<div class="text-center text-2xl">
-							{selectedNumber} × {currentMultiplier} = ?
-						</div>
-						<div class="flex justify-center gap-4">
-							<input
-								type="number"
-								name="answer"
-								bind:value={userInput}
-								use:ref
-								placeholder="Escriu la resposta"
-								class="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 {isCorrect ===
-								false
-									? 'border-red-500'
-									: ''}"
-								onkeydown={(e) => e.key === 'Enter' && checkAnswer()}
-							/>
-							<Button onclick={checkAnswer} class="cursor-pointer">Comprovar</Button>
+					<div class="mt-8 space-y-6">
+						<div
+							class="relative mx-auto max-w-md rounded-2xl bg-gradient-to-br from-blue-400 to-purple-600 p-6 text-center text-white shadow-lg"
+						>
+							<div class="text-3xl font-bold">
+								{selectedNumber} × {currentMultiplier} = ?
+							</div>
+							<div class="mt-4 flex justify-center gap-4">
+								<input
+									type="number"
+									name="answer"
+									bind:value={userInput}
+									use:ref
+									placeholder="Resultat?"
+									class="h-12 w-44 rounded-xl border-2 border-white/20 bg-white/10 px-4 text-xl font-medium text-white placeholder:text-white/70 focus:border-white focus:ring-0 focus:outline-none"
+									onkeydown={(e) => e.key === 'Enter' && checkAnswer()}
+								/>
+								<Button
+									onclick={checkAnswer}
+									class="h-12 rounded-xl bg-white/20 px-6 text-lg font-medium text-white hover:bg-white/30"
+								>
+									Comprovar!
+								</Button>
+							</div>
 						</div>
 						{#if isCorrect === false}
-							<p class="text-center text-red-500">
-								{#if MAX_ATTEMPTS - wrongAttempts > 1}
-									Torna-ho a intentar! Et queden {MAX_ATTEMPTS - wrongAttempts} intents
-								{:else}
-									Torna-ho a intentar! Últim intent
-								{/if}
-							</p>
+							<div class="text-center">
+								<p class="text-xl font-medium text-red-500">
+									{#if MAX_ATTEMPTS - wrongAttempts > 1}
+										¡Ups! Et queden {MAX_ATTEMPTS - wrongAttempts} intents 🤔
+									{:else}
+										Compte! Últim intento! 😰
+									{/if}
+								</p>
+							</div>
 						{/if}
 					</div>
 				{/if}
