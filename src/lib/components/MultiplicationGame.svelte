@@ -94,7 +94,7 @@
 
 <div class="container mx-auto p-4">
 	{#if !selectedNumber}
-		<h1 class="mt-6 text-center text-2xl font-semibold">
+		<h1 class="mt-8 text-center text-2xl font-semibold">
 			Practica les Taules de <s>Plumiticar</s> Multiplicar!
 		</h1>
 		<h2 class="my-10 text-center text-xl">Escull un nombre per practicar la seva taula:</h2>
