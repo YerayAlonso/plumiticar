@@ -2,6 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Card } from '$lib/components/ui/card';
 	import confetti from 'canvas-confetti';
+	import { onMount, onDestroy } from 'svelte';
 
 	// Añadimos la animación de bounce a Tailwind
 	const bounce = `
@@ -27,6 +28,11 @@
 	let wrongAttempts = 0;
 	const MAX_ATTEMPTS = 5;
 
+	// Variables para el temporizador
+	let startTime: number | null = null;
+	let elapsedTime = 0;
+	let timerInterval: number | null = null;
+
 	function Heart({ filled = true }: { filled: boolean }) {
 		const color = filled ? 'text-red-500' : 'text-gray-300';
 		return `
@@ -45,6 +51,43 @@
 		};
 	}
 
+	function startTimer() {
+		startTime = Date.now();
+		elapsedTime = 0;
+		if (timerInterval) clearInterval(timerInterval);
+		timerInterval = window.setInterval(() => {
+			elapsedTime = Math.floor((Date.now() - (startTime || 0)) / 1000);
+		}, 1000);
+	}
+
+	function stopTimer() {
+		if (timerInterval) {
+			clearInterval(timerInterval);
+			timerInterval = null;
+		}
+	}
+
+	onDestroy(() => {
+		stopTimer();
+	});
+
+	function formatTime(seconds: number): string {
+		if (seconds < 60) {
+			return `${seconds} segons`;
+		}
+
+		const mins = Math.floor(seconds / 60);
+		const secs = seconds % 60;
+
+		if (mins < 60) {
+			return `${mins} minuts i ${secs < 10 ? '0' : ''}${secs} segons`;
+		}
+
+		const hours = Math.floor(mins / 60);
+		const remainingMins = mins % 60;
+		return `${hours} hores, ${remainingMins} minuts i ${secs < 10 ? '0' : ''}${secs} segons`;
+	}
+
 	function selectNumber(num: number) {
 		selectedNumber = num;
 		currentMultiplier = 1;
@@ -52,6 +95,7 @@
 		userInput = '';
 		isCorrect = null;
 		wrongAttempts = 0;
+		startTimer();
 		setTimeout(() => {
 			inputRef?.focus();
 		}, 0);
@@ -72,6 +116,7 @@
 			];
 
 			if (currentMultiplier === 10) {
+				stopTimer();
 				confetti({
 					particleCount: 100,
 					spread: 70,
@@ -181,11 +226,12 @@
 						>
 					</div>
 				{:else if completedOperations.length === 10}
-					<div class="mt-6 text-center text-2xl font-bold text-green-600">
-						<p>Felicitats!</p>
-
-						<p>Has completat la taula del {selectedNumber}!</p>
+					<div class="mt-4 text-center text-2xl font-bold text-green-600">
+						Felicitats! 🎉
 					</div>
+					<div class="text-center text-xl font-bold">
+						Ho has aconseguit en {formatTime(elapsedTime)} 💪🏻
+					</div>					
 				{:else}
 					<div class="mt-8 space-y-6">
 						<div
