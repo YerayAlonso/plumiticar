@@ -163,14 +163,14 @@
 
 <div class="container mx-auto p-4">
 	{#if !selectedNumber}
-		<h1 class="mt-8 text-center text-2xl font-semibold">
+		<h1 class="mt-8 text-center text-4xl font-semibold">
 			Practica les Taules de <s>Plumiticar</s> Multiplicar!
 		</h1>
 		<h2 class="my-10 text-center text-xl">Escull un nombre per practicar la seva taula:</h2>
 		<div class="grid grid-cols-2 gap-6 md:grid-cols-5">
 			{#each Array(10) as _, i}
 				<button
-					class="group relative flex h-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br shadow-lg transition-transform hover:scale-105 active:scale-95 {getColorIndex(
+					class=" group relative flex h-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br shadow-lg transition-transform hover:scale-105 active:scale-95 {getColorIndex(
 						i
 					)}"
 					onclick={() => selectNumber(i + 1)}
@@ -200,14 +200,14 @@
 				</div>
 
 				{#if completedOperations.length > 0}
-					<div class="mx-auto mb-6 flex flex-col gap-2">
+					<div class="mx-auto flex flex-col gap-2">
 						{#each completedOperations as op}
 							<div
 								class="flex animate-[bounce_0.5s_ease-in-out] items-center justify-center rounded-xl bg-gradient-to-br px-3 py-2 text-center text-white shadow-lg transition-transform hover:scale-105 {getColorIndex(
 									op.multiplier
 								)}"
 							>
-								<div class="text-lg font-medium">
+								<div class="text-lg font-medium cursor-default">
 									{selectedNumber} × {op.multiplier} =
 									<span class="font-bold">
 										{op.result}
@@ -220,20 +220,18 @@
 
 				{#if wrongAttempts >= MAX_ATTEMPTS}
 					<div class="mt-6 text-center text-2xl font-bold text-red-600">
-						<div>Game Over!</div>
-						<Button class="mt-4" onclick={() => selectedNumber && selectNumber(selectedNumber)}
+						<div>💀 Game Over 💀</div>
+						<Button class="mt-4 cursor-pointer" onclick={() => selectedNumber && selectNumber(selectedNumber)}
 							>Intentar un altre cop</Button
 						>
 					</div>
 				{:else if completedOperations.length === 10}
-					<div class="mt-4 text-center text-2xl font-bold text-green-600">
-						Felicitats! 🎉
+					<div class="text-center flex flex-col gap-1">
+						<p class="text-2xl font-bold text-green-600">Felicitats! 🎉</p>
+						<p>Ho has aconseguit en {formatTime(elapsedTime)} 💪🏻</p>
 					</div>
-					<div class="text-center text-xl font-bold">
-						Ho has aconseguit en {formatTime(elapsedTime)} 💪🏻
-					</div>					
 				{:else}
-					<div class="mt-8 space-y-6">
+					<div class="space-y-6">
 						<div
 							class="relative mx-auto max-w-md rounded-2xl bg-gradient-to-br from-blue-400 to-purple-600 p-6 text-center text-white shadow-lg"
 						>
@@ -252,7 +250,7 @@
 								/>
 								<Button
 									onclick={checkAnswer}
-									class="h-12 rounded-xl bg-white/20 px-6 text-lg font-medium text-white hover:bg-white/30"
+									class="cursor-pointer h-12 rounded-xl bg-white/20 px-6 text-lg font-medium text-white hover:bg-white/30"
 								>
 									Comprovar!
 								</Button>

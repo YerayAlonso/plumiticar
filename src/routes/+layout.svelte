@@ -16,7 +16,7 @@
 
 <ModeWatcher />
 
-<Button onclick={toggleMode} variant="outline" size="icon" class="absolute top-4 right-4 z-50">
+<Button onclick={toggleMode} variant="outline" size="icon" class="absolute top-4 right-4 z-50 cursor-pointer">
 	<SunIcon
 		class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 !transition-all dark:scale-0 dark:-rotate-90"
 	/>
