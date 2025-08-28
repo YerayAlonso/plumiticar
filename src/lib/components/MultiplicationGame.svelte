@@ -23,9 +23,11 @@
 	let currentMultiplier = 1;
 	let userInput = '';
 	let completedOperations: Array<{ multiplier: number; result: number }> = [];
+	let remainingMultipliers: number[] = [];
 	let isCorrect: boolean | null = null;
 	let inputRef: HTMLInputElement | null = null;
 	let wrongAttempts = 0;
+	let gameMode: 'normal' | 'random' | null = null;
 	const MAX_ATTEMPTS = 5;
 
 	// Variables para el temporizador
@@ -88,17 +90,51 @@
 		return `${hours} hores, ${remainingMins} minuts i ${secs < 10 ? '0' : ''}${secs} segons`;
 	}
 
-	function selectNumber(num: number) {
-		selectedNumber = num;
-		currentMultiplier = 1;
+	function selectNumber(number: number) {
+		selectedNumber = number;
 		completedOperations = [];
-		userInput = '';
-		isCorrect = null;
 		wrongAttempts = 0;
+		isCorrect = null;
+		elapsedTime = 0;
+		gameMode = null;
+	}
+
+	function setGameMode(mode: 'normal' | 'random') {
+		gameMode = mode;
+		if (gameMode === 'random') {
+			remainingMultipliers = Array.from({ length: 10 }, (_, i) => i + 1)
+				.sort(() => Math.random() - 0.5);
+			currentMultiplier = remainingMultipliers[0];
+		} else {
+			remainingMultipliers = [];
+			currentMultiplier = 1;
+		}
+		startGame();
+	}
+
+	function startGame() {
+		// Inicializar los multiplicadores según el modo
+		if (gameMode === 'random') {
+			// Crear un array con los números del 1 al 10 y mezclarlos
+			const multipliers = Array.from({ length: 10 }, (_, i) => i + 1);
+			for (let i = multipliers.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[multipliers[i], multipliers[j]] = [multipliers[j], multipliers[i]];
+			}
+			remainingMultipliers = multipliers;
+			currentMultiplier = remainingMultipliers[0];
+		} else {
+			// Modo normal: secuencia del 1 al 10
+			currentMultiplier = 1;
+		}
+		
 		startTimer();
+
 		setTimeout(() => {
-			inputRef?.focus();
-		}, 0);
+			if (inputRef) {
+				inputRef.focus();
+			}
+		}, 100);
 	}
 
 	function checkAnswer() {
@@ -115,15 +151,33 @@
 				{ multiplier: currentMultiplier, result: correctAnswer }
 			];
 
-			if (currentMultiplier === 10) {
-				stopTimer();
-				confetti({
-					particleCount: 100,
-					spread: 70,
-					origin: { y: 0.6 }
-				});
+			if (gameMode === 'random') {
+				// Eliminar el multiplicador actual de los restantes
+				remainingMultipliers = remainingMultipliers.filter(m => m !== currentMultiplier);
+				// Si quedan multiplicadores, seleccionar el siguiente
+				if (remainingMultipliers.length > 0) {
+					currentMultiplier = remainingMultipliers[0];
+				} else {
+					// Tabla completada
+					stopTimer();
+					confetti({
+						particleCount: 100,
+						spread: 70,
+						origin: { y: 0.6 }
+					});
+				}
 			} else {
-				currentMultiplier++;
+				// Modo normal
+				if (currentMultiplier === 10) {
+					stopTimer();
+					confetti({
+						particleCount: 100,
+						spread: 70,
+						origin: { y: 0.6 }
+					});
+				} else {
+					currentMultiplier++;
+				}
 			}
 			userInput = '';
 		} else {
@@ -163,9 +217,6 @@
 
 <div class="container mx-auto p-4">
 	{#if !selectedNumber}
-		<h1 class="mt-8 text-center text-4xl font-semibold">
-			Practica les Taules de <s>Plumiticar</s> Multiplicar!
-		</h1>
 		<h2 class="my-10 text-center text-xl">Escull un nombre per practicar la seva taula:</h2>
 		<div class="grid grid-cols-2 gap-6 md:grid-cols-5">
 			{#each Array(10) as _, i}
@@ -183,93 +234,130 @@
 			{/each}
 		</div>
 	{:else}
-		<div class="mx-auto max-w-2xl">
+		<div class="mx-auto max-w-4xl">
 			<Button variant="outline" class="mb-4 cursor-pointer" onclick={() => (selectedNumber = null)}>
 				← Escollir una altra taula
 			</Button>
 
-			<Card class="p-6">
-				<div class="relative flex justify-between">
-					<h2 class="mb-4 text-2xl font-bold">Taula del {selectedNumber}</h2>
+			{#if !gameMode}
+				<h2 class="mb-8 text-2xl font-semibold">Tria el mode de joc:</h2>
+				<div class="flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
+					<button
+						onclick={() => setGameMode('normal')}
+						class="cursor-pointer flex w-full max-w-xs items-center justify-center gap-3 rounded-xl bg-blue-500 px-8 py-6 text-lg font-medium text-white transition-colors hover:bg-blue-600 sm:w-auto"
+					>
+						<span class="text-2xl">🔢</span>
+						<div class="text-left">
+							<div class="font-bold">Mode Normal</div>
+							<div class="text-sm opacity-80">Practica la taula en ordre</div>
+						</div>
+					</button>
 
-					<div class="flex items-center gap-1">
-						{#each Array(MAX_ATTEMPTS) as _, i}
-							{@html Heart({ filled: i >= wrongAttempts })}
-						{/each}
-					</div>
+					<button
+						onclick={() => setGameMode('random')}
+						class="cursor-pointer flex w-full max-w-xs items-center justify-center gap-3 rounded-xl bg-purple-500 px-8 py-6 text-lg font-medium text-white transition-colors hover:bg-purple-600 sm:w-auto"
+					>
+						<span class="text-2xl">🎲</span>
+						<div class="text-left">
+							<div class="font-bold">Mode Aleatori</div>
+							<div class="text-sm opacity-80">Practica la taula en ordre aleatori</div>
+						</div>
+					</button>
 				</div>
+			{:else}
 
-				{#if completedOperations.length > 0}
-					<div class="mx-auto flex flex-col gap-2">
-						{#each completedOperations as op}
-							<div
-								class="flex animate-[bounce_0.5s_ease-in-out] items-center justify-center rounded-xl bg-gradient-to-br px-3 py-2 text-center text-white shadow-lg transition-transform hover:scale-105 {getColorIndex(
-									op.multiplier
-								)}"
-							>
-								<div class="text-lg font-medium cursor-default">
-									{selectedNumber} × {op.multiplier} =
-									<span class="font-bold">
-										{op.result}
-									</span>
-								</div>
-							</div>
-						{/each}
-					</div>
-				{/if}
-
-				{#if wrongAttempts >= MAX_ATTEMPTS}
-					<div class="mt-6 text-center text-2xl font-bold text-red-600">
-						<div>💀 Game Over 💀</div>
-						<Button class="mt-4 cursor-pointer" onclick={() => selectedNumber && selectNumber(selectedNumber)}
-							>Intentar un altre cop</Button
-						>
-					</div>
-				{:else if completedOperations.length === 10}
-					<div class="text-center flex flex-col gap-1">
-						<p class="text-2xl font-bold text-green-600">Felicitats! 🎉</p>
-						<p>Ho has aconseguit en {formatTime(elapsedTime)} 💪🏻</p>
-					</div>
-				{:else}
-					<div class="space-y-6">
-						<div
-							class="relative mx-auto max-w-md rounded-2xl bg-gradient-to-br from-blue-400 to-purple-600 p-6 text-center text-white shadow-lg"
-						>
-							<div class="text-3xl font-bold">
-								{selectedNumber} × {currentMultiplier} = ?
-							</div>
-							<div class="mt-4 flex justify-center gap-4">
-								<input
-									type="number"
-									name="answer"
-									bind:value={userInput}
-									use:ref
-									placeholder="Resultat?"
-									class="h-12 w-44 rounded-xl border-2 border-white/20 bg-white/10 px-4 text-xl font-medium text-white placeholder:text-white/70 focus:border-white focus:ring-0 focus:outline-none"
-									onkeydown={(e) => e.key === 'Enter' && checkAnswer()}
-								/>
-								<Button
-									onclick={checkAnswer}
-									class="cursor-pointer h-12 rounded-xl bg-white/20 px-6 text-lg font-medium text-white hover:bg-white/30"
-								>
-									Comprovar!
-								</Button>
+				<Card class="p-6">
+					<div class="flex justify-between">
+						<div class="flex flex-col gap-1">
+							<h2 class="text-2xl font-bold">
+								Taula del {selectedNumber}
+							</h2>
+							<div class={`w-fit text-xs px-2 py-1 rounded-md border border-gray-200 ${gameMode === 'random' ? 'bg-purple-500' : 'bg-blue-500'}`}>
+								{gameMode === 'random' ? '🎲' : '🔢'} mode {gameMode === 'random' ? 'aleatori' : 'normal'}
 							</div>
 						</div>
-						{#if isCorrect === false}
-							<div class="text-center">
-								<p class="text-xl font-medium text-red-500">
-									{#if MAX_ATTEMPTS - wrongAttempts > 1}
-										Ups! Et queden {MAX_ATTEMPTS - wrongAttempts} intents 🤔
-									{:else}
-										Compte! Últim intento! 😰
-									{/if}
-								</p>
-							</div>
-						{/if}
+						<div class="flex">
+							{#each Array(MAX_ATTEMPTS) as _, i}
+								{@html Heart({ filled: i >= wrongAttempts })}
+							{/each}
+						</div>
 					</div>
-				{/if}
-			</Card>
+
+					{#if completedOperations.length > 0}
+						<div class="mx-auto flex flex-col gap-2">
+							{#each completedOperations as op}
+								<div
+									class="flex animate-[bounce_0.5s_ease-in-out] items-center justify-center rounded-xl bg-gradient-to-br px-3 py-2 text-center text-white shadow-lg transition-transform hover:scale-105 {getColorIndex(
+										op.multiplier
+									)}"
+								>
+									<div class="text-lg font-medium cursor-default">
+										{selectedNumber} × {op.multiplier} =
+										<span class="font-bold">
+											{op.result}
+										</span>
+									</div>
+								</div>
+							{/each}
+						</div>
+					{/if}
+
+					{#if wrongAttempts >= MAX_ATTEMPTS}
+						<div class="mt-6 text-center text-2xl font-bold text-red-600">
+							<div>💀 Game Over 💀</div>
+							<Button class="mt-4 cursor-pointer" onclick={() => selectedNumber && selectNumber(selectedNumber)}
+								>Intentar un altre cop</Button
+							>
+						</div>
+					{:else if completedOperations.length === 10}
+						<div class="text-center items-center flex flex-col gap-1">
+							<p class="text-2xl font-bold text-green-600">Felicitats! 🎉</p>
+							<p>Ho has aconseguit en {formatTime(elapsedTime)} 💪🏻</p>
+							<Button class="mt-4 cursor-pointer w-fit" onclick={() => selectedNumber = null}>
+								Escollir una altra taula
+							</Button>
+						</div>
+					{:else}
+						<div class="space-y-6">
+							<div
+								class="relative mx-auto max-w-md rounded-2xl bg-gradient-to-br from-blue-400 to-purple-600 p-6 text-center text-white shadow-lg"
+							>
+								<div class="text-3xl font-bold">
+									{selectedNumber} × {currentMultiplier} = ?
+								</div>
+								<div class="mt-4 flex justify-center gap-4">
+									<input
+										type="number"
+										name="answer"
+										bind:value={userInput}
+										use:ref
+										placeholder="Resultat?"
+										class="h-12 w-44 rounded-xl border-2 border-white/20 bg-white/10 px-4 text-xl font-medium text-white placeholder:text-white/70 focus:border-white focus:ring-0 focus:outline-none"
+										onkeydown={(e) => e.key === 'Enter' && checkAnswer()}
+									/>
+									<Button
+										onclick={checkAnswer}
+										class="cursor-pointer h-12 rounded-xl bg-white/20 px-6 text-lg font-medium text-white hover:bg-white/30"
+									>
+										Comprovar!
+									</Button>
+								</div>
+							</div>
+							{#if isCorrect === false}
+								<div class="text-center">
+									<p class="text-xl font-medium text-red-500">
+										{#if MAX_ATTEMPTS - wrongAttempts > 1}
+											Ups! Et queden {MAX_ATTEMPTS - wrongAttempts} intents 🤔
+										{:else}
+											Compte! Últim intent! 😰
+										{/if}
+									</p>
+								</div>
+							{/if}
+						</div>
+					{/if}
+				</Card>
+			{/if}
 		</div>
 	{/if}
 </div>

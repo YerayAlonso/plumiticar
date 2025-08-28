@@ -26,4 +26,7 @@
 	<span class="sr-only">Toggle theme</span>
 </Button>
 
+<h1 class="my-4 text-center text-4xl font-semibold">
+	Practica les Taules de <s>Plumiticar</s> Multiplicar!
+</h1>
 {@render children?.()}
