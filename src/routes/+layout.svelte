@@ -27,6 +27,6 @@
 </Button>
 
 <h1 class="my-4 text-center text-4xl font-semibold">
-	Practica les Taules de <s>Plumiticar</s> Multiplicar!
+	Practica les Taules de Multiplicar!
 </h1>
 {@render children?.()}
