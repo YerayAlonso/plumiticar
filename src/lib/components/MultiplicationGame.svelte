@@ -2,22 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Card } from '$lib/components/ui/card';
 	import confetti from 'canvas-confetti';
-	import { onMount, onDestroy } from 'svelte';
-
-	// Añadimos la animación de bounce a Tailwind
-	const bounce = `
-		@keyframes bounce {
-			0%, 100% { transform: translateY(0); }
-			50% { transform: translateY(-10px); }
-		}
-	`;
-
-	// Añadimos el estilo al documento
-	if (typeof document !== 'undefined') {
-		const style = document.createElement('style');
-		style.textContent = bounce;
-		document.head.appendChild(style);
-	}
+	import { onDestroy } from 'svelte';
 
 	let selectedNumber: number | null = null;
 	let currentMultiplier = 1;
@@ -102,8 +87,9 @@
 	function setGameMode(mode: 'normal' | 'random') {
 		gameMode = mode;
 		if (gameMode === 'random') {
-			remainingMultipliers = Array.from({ length: 10 }, (_, i) => i + 1)
-				.sort(() => Math.random() - 0.5);
+			remainingMultipliers = Array.from({ length: 10 }, (_, i) => i + 1).sort(
+				() => Math.random() - 0.5
+			);
 			currentMultiplier = remainingMultipliers[0];
 		} else {
 			remainingMultipliers = [];
@@ -127,7 +113,7 @@
 			// Modo normal: secuencia del 1 al 10
 			currentMultiplier = 1;
 		}
-		
+
 		startTimer();
 
 		setTimeout(() => {
@@ -153,7 +139,7 @@
 
 			if (gameMode === 'random') {
 				// Eliminar el multiplicador actual de los restantes
-				remainingMultipliers = remainingMultipliers.filter(m => m !== currentMultiplier);
+				remainingMultipliers = remainingMultipliers.filter((m) => m !== currentMultiplier);
 				// Si quedan multiplicadores, seleccionar el siguiente
 				if (remainingMultipliers.length > 0) {
 					currentMultiplier = remainingMultipliers[0];
@@ -244,7 +230,7 @@
 				<div class="flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
 					<button
 						onclick={() => setGameMode('normal')}
-						class="cursor-pointer flex w-full max-w-xs items-center justify-center gap-3 rounded-xl bg-blue-500 px-8 py-6 text-lg font-medium text-white transition-colors hover:bg-blue-600 sm:w-auto"
+						class="flex w-full max-w-xs cursor-pointer items-center justify-center gap-3 rounded-xl bg-blue-500 px-8 py-6 text-lg font-medium text-white transition-colors hover:bg-blue-600 sm:w-auto"
 					>
 						<span class="text-2xl">🔢</span>
 						<div class="text-left">
@@ -255,7 +241,7 @@
 
 					<button
 						onclick={() => setGameMode('random')}
-						class="cursor-pointer flex w-full max-w-xs items-center justify-center gap-3 rounded-xl bg-purple-500 px-8 py-6 text-lg font-medium text-white transition-colors hover:bg-purple-600 sm:w-auto"
+						class="flex w-full max-w-xs cursor-pointer items-center justify-center gap-3 rounded-xl bg-purple-500 px-8 py-6 text-lg font-medium text-white transition-colors hover:bg-purple-600 sm:w-auto"
 					>
 						<span class="text-2xl">🎲</span>
 						<div class="text-left">
@@ -265,15 +251,18 @@
 					</button>
 				</div>
 			{:else}
-
 				<Card class="p-6">
 					<div class="flex justify-between">
 						<div class="flex flex-col gap-1">
 							<h2 class="text-2xl font-bold">
 								Taula del {selectedNumber}
 							</h2>
-							<div class={`w-fit text-xs px-2 py-1 rounded-md border border-gray-200 ${gameMode === 'random' ? 'bg-purple-500' : 'bg-blue-500'}`}>
-								{gameMode === 'random' ? '🎲' : '🔢'} mode {gameMode === 'random' ? 'aleatori' : 'normal'}
+							<div
+								class={`w-fit rounded-md border border-gray-200 px-2 py-1 text-xs ${gameMode === 'random' ? 'bg-purple-500' : 'bg-blue-500'}`}
+							>
+								{gameMode === 'random' ? '🎲' : '🔢'} mode {gameMode === 'random'
+									? 'aleatori'
+									: 'normal'}
 							</div>
 						</div>
 						<div class="flex">
@@ -291,7 +280,7 @@
 										op.multiplier
 									)}"
 								>
-									<div class="text-lg font-medium cursor-default">
+									<div class="cursor-default text-lg font-medium">
 										{selectedNumber} × {op.multiplier} =
 										<span class="font-bold">
 											{op.result}
@@ -305,15 +294,17 @@
 					{#if wrongAttempts >= MAX_ATTEMPTS}
 						<div class="mt-6 text-center text-2xl font-bold text-red-600">
 							<div>💀 Game Over 💀</div>
-							<Button class="mt-4 cursor-pointer" onclick={() => selectedNumber && selectNumber(selectedNumber)}
+							<Button
+								class="mt-4 cursor-pointer"
+								onclick={() => selectedNumber && selectNumber(selectedNumber)}
 								>Intentar un altre cop</Button
 							>
 						</div>
 					{:else if completedOperations.length === 10}
-						<div class="text-center items-center flex flex-col gap-1">
+						<div class="flex flex-col items-center gap-1 text-center">
 							<p class="text-2xl font-bold text-green-600">Felicitats! 🎉</p>
 							<p>Ho has aconseguit en {formatTime(elapsedTime)} 💪🏻</p>
-							<Button class="mt-4 cursor-pointer w-fit" onclick={() => selectedNumber = null}>
+							<Button class="mt-4 w-fit cursor-pointer" onclick={() => (selectedNumber = null)}>
 								Escollir una altra taula
 							</Button>
 						</div>
@@ -337,7 +328,7 @@
 									/>
 									<Button
 										onclick={checkAnswer}
-										class="cursor-pointer h-12 rounded-xl bg-white/20 px-6 text-lg font-medium text-white hover:bg-white/30"
+										class="h-12 cursor-pointer rounded-xl bg-white/20 px-6 text-lg font-medium text-white hover:bg-white/30"
 									>
 										Comprovar!
 									</Button>
