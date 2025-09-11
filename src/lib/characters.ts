@@ -12,7 +12,7 @@ export interface Character {
 export const characters: Character[] = [
 	{
 		id: 'mage',
-		name: 'Màgic Àlex',
+		name: 'Mag Àlex',
 		gender: 'masculine',
 		emoji: '🧙‍♂️',
 		description: 'Un mag savi que utilitza la màgia dels números per resoldre problemes',
