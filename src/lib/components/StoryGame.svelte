@@ -7,7 +7,7 @@
 		goBack: () => void;
 	}>();
 
-	let selectedCharacter: Character | null = null;
+	let selectedCharacter: Character | null = $state(null);
 
 	function handleCharacterSelected(character: Character) {
 		selectedCharacter = character;
