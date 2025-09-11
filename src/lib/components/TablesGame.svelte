@@ -4,20 +4,22 @@
 	import confetti from 'canvas-confetti';
 	import { onDestroy } from 'svelte';
 
-	let selectedNumber: number | null = null;
-	let currentMultiplier = 1;
-	let userInput = '';
-	let completedOperations: Array<{ multiplier: number; result: number }> = [];
-	let remainingMultipliers: number[] = [];
-	let isCorrect: boolean | null = null;
+	const { goBack } = $props();
+
+	let selectedNumber = $state<number | null>(null);
+	let currentMultiplier = $state(1);
+	let userInput = $state('');
+	let completedOperations = $state<Array<{ multiplier: number; result: number }>>([]);
+	let remainingMultipliers = $state<number[]>([]);
+	let isCorrect = $state<boolean | null>(null);
 	let inputRef: HTMLInputElement | null = null;
-	let wrongAttempts = 0;
-	let gameMode: 'normal' | 'random' | null = null;
+	let wrongAttempts = $state(0);
+	let gameMode = $state<'normal' | 'random' | null>(null);
 	const MAX_ATTEMPTS = 5;
 
 	// Variables para el temporizador
 	let startTime: number | null = null;
-	let elapsedTime = 0;
+	let elapsedTime = $state(0);
 	let timerInterval: number | null = null;
 
 	function Heart({ filled = true }: { filled: boolean }) {
@@ -221,8 +223,8 @@
 		</div>
 	{:else}
 		<div class="mx-auto max-w-4xl">
-			<Button variant="outline" class="mb-4 cursor-pointer" onclick={() => (selectedNumber = null)}>
-				← Escollir una altra taula
+			<Button variant="outline" class="mb-4 cursor-pointer" onclick={() => goBack()}>
+				← Tornar al menú principal
 			</Button>
 
 			{#if !gameMode}
@@ -304,7 +306,7 @@
 						<div class="flex flex-col items-center gap-1 text-center">
 							<p class="text-2xl font-bold text-green-600">Felicitats! 🎉</p>
 							<p>Ho has aconseguit en {formatTime(elapsedTime)} 💪🏻</p>
-							<Button class="mt-4 w-fit cursor-pointer" onclick={() => (selectedNumber = null)}>
+							<Button class="mt-4 w-fit cursor-pointer" onclick={() => goBack()}>
 								Escollir una altra taula
 							</Button>
 						</div>
